@@ -212,14 +212,14 @@ namespace rs
 		virtual const unsigned int* CustomLanguage_CompileToSPIRV(int langID, const char* src, size_t src_len, ed::plugin::ShaderStage stage, const char* entry, ed::plugin::ShaderMacro* macros, size_t macroCount, size_t* spv_length, bool* compiled)
 		{
 			// write to lib.rs file
-			std::ofstream writer("rust_crates/shader/src/lib.rs");
+			std::ofstream writer("rust_box/rss/src/lib.rs");
 			writer << src;
 			writer.close();
 
 			m_updateEnv();
 
 			// run cargo build
-			std::string output = m_exec("cargo build --message-format=json --manifest-path rust_crates/shader/Cargo.toml -Z build-std=core --target spirv-unknown-unknown --release");
+			std::string output = m_exec("cd rust_box; cargo build --message-format=json --release");
 
 
 			if (output.size() == 0) {
@@ -291,7 +291,7 @@ namespace rs
 			
 
 			// read from .spv file
-			FILE* reader = fopen("rust_crates/shader/target/spirv-unknown-unknown/release/rust_shader.spv", "rb");
+			FILE* reader = fopen("rust_box/spirv/shader.spv", "rb");
 			if (reader == nullptr) {
 				*compiled = false;
 				return nullptr;
