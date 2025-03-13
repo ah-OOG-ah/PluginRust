@@ -209,22 +209,27 @@ namespace rs
 		// languages
 		int CustomLanguage_GetCount() override { return 1; }
 		const char* CustomLanguage_GetName(int langID) override { return "Rust"; }
-		const unsigned int* CustomLanguage_CompileToSPIRV(int langID, const char* src, size_t src_len, ed::plugin::ShaderStage stage, const char* entry, ed::plugin::ShaderMacro* macros, size_t macroCount, size_t* spv_length, bool* compiled) override
-		{
+		const unsigned int* CustomLanguage_CompileToSPIRV(
+                int langID,
+                const char* src,
+                size_t src_len,
+                ed::plugin::ShaderStage stage,
+                const char* entry,
+                ed::plugin::ShaderMacro* macros,
+                size_t macroCount,
+                size_t* spv_length,
+                bool* compiled) override {
 			// write to lib.rs file
 			std::ofstream writer("rust_box/rss/src/lib.rs");
 			writer << src;
 			writer.close();
 
-			m_updateEnv();
-
 			// run cargo build
 			std::string output = m_exec("cd rust_box; cargo build --message-format=json --release");
 
-
 			if (output.empty()) {
 				*compiled = false;
-				AddMessage(Messages, ed::plugin::MessageType::Error, nullptr, "Cargo not properly set up", -1);
+				AddMessage(Messages, ed::plugin::MessageType::Error, nullptr, "Cargo failed to run - no output", -1);
 				return m_spv;
 			}
 			
@@ -237,11 +242,17 @@ namespace rs
 			while (std::getline(outputParser, outputSegment)) {
 				picojson::value v;
 				std::string err = picojson::parse(v, outputSegment);
+
 				if (!err.empty()) {
-					AddMessage(Messages, ed::plugin::MessageType::Error, GetMessagesCurrentItem(Messages), "Cargo not properly set up", -1);
+					AddMessage(
+                        Messages,
+                        ed::plugin::MessageType::Error,
+                        GetMessagesCurrentItem(Messages),
+                        "Cargo failed to run - errors during compilation", -1);
 					*compiled = false;
 					return m_spv;
 				}
+
 				if (v.is<picojson::object>()) {
 
 					picojson::object& obj = v.get<picojson::object>();
@@ -274,14 +285,14 @@ namespace rs
 						
 						if (level == "error") 
 							compileSuccess = false;
-					}
-					else if (reason == "build-finished") {
-						bool status = obj["success"].get<bool>();
-						if (!status)
-							compileSuccess = false;
-					}
+                    } else if (reason == "build-finished") {
+                        bool status = obj["success"].get<bool>();
+                        if (!status)
+                            compileSuccess = false;
+                    }
 				}
 			}
+
 			if (!compileSuccess) {
 				*compiled = false;
 				return nullptr;
@@ -310,6 +321,7 @@ namespace rs
 
 			return m_spv;
 		}
+        
 		const char* CustomLanguage_ProcessGeneratedGLSL(int langID, const char* srcPtr) override
 		{
 			return srcPtr;
@@ -490,15 +502,15 @@ namespace rs
 			}
 			return result;
 #else
-			std::array<char, 128> buffer{};
+			char buffer[128];
 			std::string result;
 			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
 			if (!pipe) {
 				printf("Failed to run exec()");
 				return "";
 			}
-			while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-				result.append(buffer.data());
+			while (fgets(buffer, 128, pipe.get()) != nullptr) {
+				result += buffer;
 			}
 			return result;
 #endif
