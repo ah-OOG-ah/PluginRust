@@ -6,3 +6,10 @@ CMakeFiles/
 Makefile
 bin/
 cmake_install.cmake
+
+# IDE files
+.idea
+
+# CMake files
+cmake-build-debug
+cmake-build-release

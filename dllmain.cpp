@@ -5,8 +5,8 @@
 #include <PluginAPI/Plugin.h>
 #include <imgui/imgui.h>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <array>
 #include <vector>
 #include <utility>
@@ -27,7 +27,7 @@ namespace rs
 	class RustPlugin : public ed::IPlugin2
 	{
 	public:
-		virtual bool Init(bool isWeb, int sedVersion) {
+		bool Init(bool isWeb, int sedVersion) override {
 			m_buildLangDefinition();
 			m_spv = nullptr;
 			
@@ -45,11 +45,11 @@ namespace rs
 			return true;
 		}
 
-		virtual void InitUI(void* ctx) {
+		void InitUI(void* ctx) override {
 			ImGui::SetCurrentContext((ImGuiContext*)ctx);
 		}
-		virtual void OnEvent(void* e) { }
-		virtual void Update(float delta) {
+		void OnEvent(void* e) override { }
+		void Update(float delta) override {
 			if (m_hostVersion >= 2 && ImGuiFileDialogIsDone("PluginRustCodegenFile")) {
 				if (ImGuiFileDialogGetResult()) {
 					char tempFilepath[1024] = { 0 };
@@ -60,121 +60,121 @@ namespace rs
 				ImGuiFileDialogClose("PluginRustCodegenFile");
 			}
 		}
-		virtual void Destroy() {
+		void Destroy() override {
 			if (m_spv)
 				free(m_spv);
 		}
 
-		virtual bool IsRequired() { return 0; }
-		virtual bool IsVersionCompatible(int version) { return 0; }
+		bool IsRequired() override { return false; }
+		bool IsVersionCompatible(int version) override { return false; }
 
-		virtual void BeginRender() { }
-		virtual void EndRender() { }
+		void BeginRender() override { }
+		void EndRender() override { }
 
-		virtual void Project_BeginLoad() { }
-		virtual void Project_EndLoad() { }
-		virtual void Project_BeginSave() { }
-		virtual void Project_EndSave() { }
-		virtual bool Project_HasAdditionalData() { return 0; }
-		virtual const char* Project_ExportAdditionalData() { return 0; }
-		virtual void Project_ImportAdditionalData(const char* xml) { }
-		virtual void Project_CopyFilesOnSave(const char* dir) { }
+		void Project_BeginLoad() override { }
+		void Project_EndLoad() override { }
+		void Project_BeginSave() override { }
+		void Project_EndSave() override { }
+		bool Project_HasAdditionalData() override { return false; }
+		const char* Project_ExportAdditionalData() override { return nullptr; }
+		void Project_ImportAdditionalData(const char* xml) override { }
+		void Project_CopyFilesOnSave(const char* dir) override { }
 
 		/* list: file, newproject, project, createitem, window, custom */
-		virtual bool HasCustomMenuItem() { return 0; }
-		virtual bool HasMenuItems(const char* name) { return 0; }
-		virtual void ShowMenuItems(const char* name) { }
+		bool HasCustomMenuItem() override { return false; }
+		bool HasMenuItems(const char* name) override { return false; }
+		void ShowMenuItems(const char* name) override { }
 
 		/* list: pipeline, shaderpass_add (owner = ShaderPass), pluginitem_add (owner = char* ItemType, extraData = PluginItemData) objects, editcode (owner = char* ItemName) */
-		virtual bool HasContextItems(const char* name) { return 0; }
-		virtual void ShowContextItems(const char* name, void* owner = nullptr, void* extraData = nullptr) { }
+		bool HasContextItems(const char* name) override { return false; }
+		void ShowContextItems(const char* name, void* owner = nullptr, void* extraData = nullptr) override { }
 
 		// system variable methods
-		virtual int SystemVariables_GetNameCount(ed::plugin::VariableType varType) { return 0; }
-		virtual const char* SystemVariables_GetName(ed::plugin::VariableType varType, int index) { return 0; }
-		virtual bool SystemVariables_HasLastFrame(char* name, ed::plugin::VariableType varType) { return 0; }
-		virtual void SystemVariables_UpdateValue(char* data, char* name, ed::plugin::VariableType varType, bool isLastFrame) { }
+		int SystemVariables_GetNameCount(ed::plugin::VariableType varType) override { return 0; }
+		const char* SystemVariables_GetName(ed::plugin::VariableType varType, int index) override { return nullptr; }
+		bool SystemVariables_HasLastFrame(char* name, ed::plugin::VariableType varType) override { return false; }
+		void SystemVariables_UpdateValue(char* data, char* name, ed::plugin::VariableType varType, bool isLastFrame) override { }
 
 		// function variables
-		virtual int VariableFunctions_GetNameCount(ed::plugin::VariableType vtype) { return 0; }
-		virtual const char* VariableFunctions_GetName(ed::plugin::VariableType varType, int index) { return 0; }
-		virtual bool VariableFunctions_ShowArgumentEdit(char* fname, char* args, ed::plugin::VariableType vtype) { return 0; }
-		virtual void VariableFunctions_UpdateValue(char* data, char* args, char* fname, ed::plugin::VariableType varType) { }
-		virtual int VariableFunctions_GetArgsSize(char* fname, ed::plugin::VariableType varType) { return 0; }
-		virtual void VariableFunctions_InitArguments(char* args, char* fname, ed::plugin::VariableType vtype) { }
-		virtual const char* VariableFunctions_ExportArguments(char* fname, ed::plugin::VariableType vtype, char* args) { return 0; }
-		virtual void VariableFunctions_ImportArguments(char* fname, ed::plugin::VariableType vtype, char* args, const char* argsString) { }
+		int VariableFunctions_GetNameCount(ed::plugin::VariableType vtype) override { return 0; }
+		const char* VariableFunctions_GetName(ed::plugin::VariableType varType, int index) override { return nullptr; }
+		bool VariableFunctions_ShowArgumentEdit(char* fname, char* args, ed::plugin::VariableType vtype) override { return false; }
+		void VariableFunctions_UpdateValue(char* data, char* args, char* fname, ed::plugin::VariableType varType) override { }
+		int VariableFunctions_GetArgsSize(char* fname, ed::plugin::VariableType varType) override { return 0; }
+		void VariableFunctions_InitArguments(char* args, char* fname, ed::plugin::VariableType vtype) override { }
+		const char* VariableFunctions_ExportArguments(char* fname, ed::plugin::VariableType vtype, char* args) override { return nullptr; }
+		void VariableFunctions_ImportArguments(char* fname, ed::plugin::VariableType vtype, char* args, const char* argsString) override { }
 
 		// object manager stuff
-		virtual bool Object_HasPreview(const char* type) { return 0; }
-		virtual void Object_ShowPreview(const char* type, void* data, unsigned int id) { }
-		virtual bool Object_IsBindable(const char* type) { return 0; }
-		virtual bool Object_IsBindableUAV(const char* type) { return 0; }
-		virtual void Object_Remove(const char* name, const char* type, void* data, unsigned int id) { }
-		virtual bool Object_HasExtendedPreview(const char* type) { return 0; }
-		virtual void Object_ShowExtendedPreview(const char* type, void* data, unsigned int id) { }
-		virtual bool Object_HasProperties(const char* type) { return 0; }
-		virtual void Object_ShowProperties(const char* type, void* data, unsigned int id) { }
-		virtual void Object_Bind(const char* type, void* data, unsigned int id) { }
-		virtual const char* Object_Export(char* type, void* data, unsigned int id) { return 0; }
-		virtual void Object_Import(const char* name, const char* type, const char* argsString) { }
-		virtual bool Object_HasContext(const char* type) { return 0; }
-		virtual void Object_ShowContext(const char* type, void* data) { }
+		bool Object_HasPreview(const char* type) override { return false; }
+		void Object_ShowPreview(const char* type, void* data, unsigned int id) override { }
+		bool Object_IsBindable(const char* type) override { return false; }
+		bool Object_IsBindableUAV(const char* type) override { return false; }
+		void Object_Remove(const char* name, const char* type, void* data, unsigned int id) override { }
+		bool Object_HasExtendedPreview(const char* type) override { return false; }
+		void Object_ShowExtendedPreview(const char* type, void* data, unsigned int id) override { }
+		bool Object_HasProperties(const char* type) override { return false; }
+		void Object_ShowProperties(const char* type, void* data, unsigned int id) override { }
+		void Object_Bind(const char* type, void* data, unsigned int id) override { }
+		const char* Object_Export(char* type, void* data, unsigned int id) override { return nullptr; }
+		void Object_Import(const char* name, const char* type, const char* argsString) override { }
+		bool Object_HasContext(const char* type) override { return false; }
+		void Object_ShowContext(const char* type, void* data) override { }
 
 		// pipeline item stuff
-		virtual bool PipelineItem_HasProperties(const char* type, void* data) { return 0; }
-		virtual void PipelineItem_ShowProperties(const char* type, void* data) { }
-		virtual bool PipelineItem_IsPickable(const char* type, void* data) { return 0; }
-		virtual bool PipelineItem_HasShaders(const char* type, void* data) { return 0; }
-		virtual void PipelineItem_OpenInEditor(const char* type, void* data) { }
-		virtual bool PipelineItem_CanHaveChild(const char* type, void* data, ed::plugin::PipelineItemType itemType) { return 0; }
-		virtual int PipelineItem_GetInputLayoutSize(const char* type, void* data) { return 0; }
-		virtual void PipelineItem_GetInputLayoutItem(const char* type, void* data, int index, ed::plugin::InputLayoutItem& out) { }
-		virtual void PipelineItem_Remove(const char* itemName, const char* type, void* data) { }
-		virtual void PipelineItem_Rename(const char* oldName, const char* newName) { }
-		virtual void PipelineItem_AddChild(const char* owner, const char* name, ed::plugin::PipelineItemType type, void* data) { }
-		virtual bool PipelineItem_CanHaveChildren(const char* type, void* data) { return 0; }
-		virtual void* PipelineItem_CopyData(const char* type, void* data) { return 0; }
-		virtual void PipelineItem_Execute(void* Owner, ed::plugin::PipelineItemType OwnerType, const char* type, void* data) { }
-		virtual void PipelineItem_Execute(const char* type, void* data, void* children, int count) { }
-		virtual void PipelineItem_GetWorldMatrix(const char* type, void* data, float(&pMat)[16]) { }
-		virtual bool PipelineItem_Intersect(const char* type, void* data, const float* rayOrigin, const float* rayDir, float& hitDist) { return 0; }
-		virtual void PipelineItem_GetBoundingBox(const char* type, void* data, float(&minPos)[3], float(&maxPos)[3]) { }
-		virtual bool PipelineItem_HasContext(const char* type, void* data) { return 0; }
-		virtual void PipelineItem_ShowContext(const char* type, void* data) { }
-		virtual const char* PipelineItem_Export(const char* type, void* data) { return 0; }
-		virtual void* PipelineItem_Import(const char* ownerName, const char* name, const char* type, const char* argsString) { return 0; }
-		virtual void PipelineItem_MoveDown(void* ownerData, const char* ownerType, const char* itemName) { }
-		virtual void PipelineItem_MoveUp(void* ownerData, const char* ownerType, const char* itemName) { }
-		virtual void PipelineItem_ApplyGizmoTransform(const char* type, void* data, float* transl, float* scale, float* rota) { }
-		virtual void PipelineItem_GetTransform(const char* type, void* data, float* transl, float* scale, float* rota) { }
-		virtual void PipelineItem_DebugVertexExecute(void* Owner, ed::plugin::PipelineItemType OwnerType, const char* type, void* data, unsigned int colorVarLoc) { }
-		virtual int PipelineItem_DebugVertexExecute(const char* type, void* data, const char* childName, float rx, float ry, int vertexGroup) { return 0; }
-		virtual void PipelineItem_DebugInstanceExecute(void* Owner, ed::plugin::PipelineItemType OwnerType, const char* type, void* data, unsigned int colorVarLoc) { }
-		virtual int PipelineItem_DebugInstanceExecute(const char* type, void* data, const char* childName, float rx, float ry, int vertexGroup) { return 0; }
-		virtual unsigned int PipelineItem_GetVBO(const char* type, void* data) { return 0; }
-		virtual unsigned int PipelineItem_GetVBOStride(const char* type, void* data) { return 0; }
-		virtual bool PipelineItem_CanChangeVariables(const char* type, void* data) { return 0; }
-		virtual bool PipelineItem_IsDebuggable(const char* type, void* data) { return 0; }
-		virtual bool PipelineItem_IsStageDebuggable(const char* type, void* data, ed::plugin::ShaderStage stage) { return 0; }
-		virtual void PipelineItem_DebugExecute(const char* type, void* data, void* children, int count, int* debugID) { }
-		virtual unsigned int PipelineItem_GetTopology(const char* type, void* data) { return 0; }
-		virtual unsigned int PipelineItem_GetVariableCount(const char* type, void* data) { return 0; }
-		virtual const char* PipelineItem_GetVariableName(const char* type, void* data, unsigned int variable) { return 0; }
-		virtual ed::plugin::VariableType PipelineItem_GetVariableType(const char* type, void* data, unsigned int variable) { return ed::plugin::VariableType::Float1; }
-		virtual float PipelineItem_GetVariableValueFloat(const char* type, void* data, unsigned int variable, int col, int row) { return 0; }
-		virtual int PipelineItem_GetVariableValueInteger(const char* type, void* data, unsigned int variable, int col) { return 0; }
-		virtual bool PipelineItem_GetVariableValueBoolean(const char* type, void* data, unsigned int variable, int col) { return 0; }
-		virtual unsigned int PipelineItem_GetSPIRVSize(const char* type, void* data, ed::plugin::ShaderStage stage) { return 0; }
-		virtual unsigned int* PipelineItem_GetSPIRV(const char* type, void* data, ed::plugin::ShaderStage stage) { return 0; }
-		virtual void PipelineItem_DebugPrepareVariables(const char* type, void* data, const char* name) { }
-		virtual bool PipelineItem_DebugUsesCustomTextures(const char* type, void* data) { return 0; }
-		virtual unsigned int PipelineItem_DebugGetTexture(const char* type, void* data, int loc, const char* variableName) { return 0; }
-		virtual void PipelineItem_DebugGetTextureSize(const char* type, void* data, int loc, const char* variableName, int& x, int& y, int& z) { }
+		bool PipelineItem_HasProperties(const char* type, void* data) override { return false; }
+		void PipelineItem_ShowProperties(const char* type, void* data) override { }
+		bool PipelineItem_IsPickable(const char* type, void* data) override { return false; }
+		bool PipelineItem_HasShaders(const char* type, void* data) override { return false; }
+		void PipelineItem_OpenInEditor(const char* type, void* data) override { }
+		bool PipelineItem_CanHaveChild(const char* type, void* data, ed::plugin::PipelineItemType itemType) override { return false; }
+		int PipelineItem_GetInputLayoutSize(const char* type, void* data) override { return 0; }
+		void PipelineItem_GetInputLayoutItem(const char* type, void* data, int index, ed::plugin::InputLayoutItem& out) override { }
+		void PipelineItem_Remove(const char* itemName, const char* type, void* data) override { }
+		void PipelineItem_Rename(const char* oldName, const char* newName) override { }
+		void PipelineItem_AddChild(const char* owner, const char* name, ed::plugin::PipelineItemType type, void* data) override { }
+		bool PipelineItem_CanHaveChildren(const char* type, void* data) override { return false; }
+		void* PipelineItem_CopyData(const char* type, void* data) override { return nullptr; }
+		void PipelineItem_Execute(void* Owner, ed::plugin::PipelineItemType OwnerType, const char* type, void* data) override { }
+		void PipelineItem_Execute(const char* type, void* data, void* children, int count) override { }
+		void PipelineItem_GetWorldMatrix(const char* type, void* data, float(&pMat)[16]) override { }
+		bool PipelineItem_Intersect(const char* type, void* data, const float* rayOrigin, const float* rayDir, float& hitDist) override { return false; }
+		void PipelineItem_GetBoundingBox(const char* type, void* data, float(&minPos)[3], float(&maxPos)[3]) override { }
+		bool PipelineItem_HasContext(const char* type, void* data) override { return false; }
+		void PipelineItem_ShowContext(const char* type, void* data) override { }
+		const char* PipelineItem_Export(const char* type, void* data) override { return nullptr; }
+		void* PipelineItem_Import(const char* ownerName, const char* name, const char* type, const char* argsString) override { return nullptr; }
+		void PipelineItem_MoveDown(void* ownerData, const char* ownerType, const char* itemName) override { }
+		void PipelineItem_MoveUp(void* ownerData, const char* ownerType, const char* itemName) override { }
+		void PipelineItem_ApplyGizmoTransform(const char* type, void* data, float* transl, float* scale, float* rota) override { }
+		void PipelineItem_GetTransform(const char* type, void* data, float* transl, float* scale, float* rota) override { }
+		void PipelineItem_DebugVertexExecute(void* Owner, ed::plugin::PipelineItemType OwnerType, const char* type, void* data, unsigned int colorVarLoc) override { }
+		int PipelineItem_DebugVertexExecute(const char* type, void* data, const char* childName, float rx, float ry, int vertexGroup) override { return 0; }
+		void PipelineItem_DebugInstanceExecute(void* Owner, ed::plugin::PipelineItemType OwnerType, const char* type, void* data, unsigned int colorVarLoc) override { }
+		int PipelineItem_DebugInstanceExecute(const char* type, void* data, const char* childName, float rx, float ry, int vertexGroup) override { return 0; }
+		unsigned int PipelineItem_GetVBO(const char* type, void* data) override { return 0; }
+		unsigned int PipelineItem_GetVBOStride(const char* type, void* data) override { return 0; }
+		bool PipelineItem_CanChangeVariables(const char* type, void* data) override { return false; }
+		bool PipelineItem_IsDebuggable(const char* type, void* data) override { return false; }
+		bool PipelineItem_IsStageDebuggable(const char* type, void* data, ed::plugin::ShaderStage stage) override { return false; }
+		void PipelineItem_DebugExecute(const char* type, void* data, void* children, int count, int* debugID) override { }
+		unsigned int PipelineItem_GetTopology(const char* type, void* data) override { return 0; }
+		unsigned int PipelineItem_GetVariableCount(const char* type, void* data) override { return 0; }
+		const char* PipelineItem_GetVariableName(const char* type, void* data, unsigned int variable) override { return nullptr; }
+		ed::plugin::VariableType PipelineItem_GetVariableType(const char* type, void* data, unsigned int variable) override { return ed::plugin::VariableType::Float1; }
+		float PipelineItem_GetVariableValueFloat(const char* type, void* data, unsigned int variable, int col, int row) override { return 0; }
+		int PipelineItem_GetVariableValueInteger(const char* type, void* data, unsigned int variable, int col) override { return 0; }
+		bool PipelineItem_GetVariableValueBoolean(const char* type, void* data, unsigned int variable, int col) override { return false; }
+		unsigned int PipelineItem_GetSPIRVSize(const char* type, void* data, ed::plugin::ShaderStage stage) override { return 0; }
+		unsigned int* PipelineItem_GetSPIRV(const char* type, void* data, ed::plugin::ShaderStage stage) override { return nullptr; }
+		void PipelineItem_DebugPrepareVariables(const char* type, void* data, const char* name) override { }
+		bool PipelineItem_DebugUsesCustomTextures(const char* type, void* data) override { return false; }
+		unsigned int PipelineItem_DebugGetTexture(const char* type, void* data, int loc, const char* variableName) override { return 0; }
+		void PipelineItem_DebugGetTextureSize(const char* type, void* data, int loc, const char* variableName, int& x, int& y, int& z) override { }
 
 		// options
-		virtual bool Options_HasSection() { return true; }
-		virtual void Options_RenderSection() {
+		bool Options_HasSection() override { return true; }
+		void Options_RenderSection() override {
 			ImGui::Text("Codegen file: %s", m_codegenPath.c_str());
 			ImGui::SameLine();
 			ImGui::SetCursorPosX(ImGui::GetWindowWidth() - 180);
@@ -183,7 +183,7 @@ namespace rs
 					ImGuiFileDialogOpen("PluginRustCodegenFile", "Select the codegen file", "DLL file (*.dll;*.so){.dll,.so},.*");
 			}
 		}
-		virtual void Options_Parse(const char* key, const char* val)
+		void Options_Parse(const char* key, const char* val) override
 		{
 			if (strcmp(key, "codegen") == 0) {
 				m_codegenPath = std::string(val);
@@ -192,14 +192,14 @@ namespace rs
 				}
 			}
 		}
-		virtual int Options_GetCount() { return 1; } // path to codegen .dll
-		virtual const char* Options_GetKey(int index)
+		int Options_GetCount() override { return 1; } // path to codegen .dll
+		const char* Options_GetKey(int index) override
 		{
 			if (index == 0)
 				return "codegen";
 			return nullptr;
 		}
-		virtual const char* Options_GetValue(int index)
+		const char* Options_GetValue(int index) override
 		{
 			if (index == 0)
 				return m_codegenPath.c_str();
@@ -207,9 +207,9 @@ namespace rs
 		}
 
 		// languages
-		virtual int CustomLanguage_GetCount() { return 1; }
-		virtual const char* CustomLanguage_GetName(int langID) { return "Rust"; }
-		virtual const unsigned int* CustomLanguage_CompileToSPIRV(int langID, const char* src, size_t src_len, ed::plugin::ShaderStage stage, const char* entry, ed::plugin::ShaderMacro* macros, size_t macroCount, size_t* spv_length, bool* compiled)
+		int CustomLanguage_GetCount() override { return 1; }
+		const char* CustomLanguage_GetName(int langID) override { return "Rust"; }
+		const unsigned int* CustomLanguage_CompileToSPIRV(int langID, const char* src, size_t src_len, ed::plugin::ShaderStage stage, const char* entry, ed::plugin::ShaderMacro* macros, size_t macroCount, size_t* spv_length, bool* compiled) override
 		{
 			// write to lib.rs file
 			std::ofstream writer("rust_box/rss/src/lib.rs");
@@ -222,7 +222,7 @@ namespace rs
 			std::string output = m_exec("cd rust_box; cargo build --message-format=json --release");
 
 
-			if (output.size() == 0) {
+			if (output.empty()) {
 				*compiled = false;
 				AddMessage(Messages, ed::plugin::MessageType::Error, nullptr, "Cargo not properly set up", -1);
 				return m_spv;
@@ -233,7 +233,7 @@ namespace rs
 			// TODO: split by \n then parse...
 			bool compileSuccess = true;
 			std::stringstream outputParser(output);
-			std::string outputSegment = "";
+			std::string outputSegment;
 			while (std::getline(outputParser, outputSegment)) {
 				picojson::value v;
 				std::string err = picojson::parse(v, outputSegment);
@@ -310,113 +310,113 @@ namespace rs
 
 			return m_spv;
 		}
-		virtual const char* CustomLanguage_ProcessGeneratedGLSL(int langID, const char* srcPtr)
+		const char* CustomLanguage_ProcessGeneratedGLSL(int langID, const char* srcPtr) override
 		{
 			return srcPtr;
 		}
-		virtual bool CustomLanguage_SupportsAutoUniforms(int langID) { return true; }
-		virtual bool CustomLanguage_IsDebuggable(int langID) { return true; }
-		virtual const char* CustomLanguage_GetDefaultExtension(int langID) { return "rs"; }
+		bool CustomLanguage_SupportsAutoUniforms(int langID) override { return true; }
+		bool CustomLanguage_IsDebuggable(int langID) override { return true; }
+		const char* CustomLanguage_GetDefaultExtension(int langID) override { return "rs"; }
 
 		// language text editor
-		virtual bool ShaderEditor_Supports(int langID) { return 0; }
-		virtual void ShaderEditor_Open(int langID, int editorID, const char* data, int dataLen) { }
-		virtual void ShaderEditor_Render(int langID, int editorID) { }
-		virtual void ShaderEditor_Close(int langID, int editorID) { }
-		virtual const char* ShaderEditor_GetContent(int langID, int editorID, size_t* dataLength) { return 0; }
-		virtual bool ShaderEditor_IsChanged(int langID, int editorID) { return 0; }
-		virtual void ShaderEditor_ResetChangeState(int langID, int editorID) { }
-		virtual bool ShaderEditor_CanUndo(int langID, int editorID) { return 0; }
-		virtual bool ShaderEditor_CanRedo(int langID, int editorID) { return 0; }
-		virtual void ShaderEditor_Undo(int langID, int editorID) { }
-		virtual void ShaderEditor_Redo(int langID, int editorID) { }
-		virtual void ShaderEditor_Cut(int langID, int editorID) { }
-		virtual void ShaderEditor_Paste(int langID, int editorID) { }
-		virtual void ShaderEditor_Copy(int langID, int editorID) { }
-		virtual void ShaderEditor_SelectAll(int langID, int editorID) { }
-		virtual bool ShaderEditor_HasStats(int langID, int editorID) { return 0; }
+		bool ShaderEditor_Supports(int langID) override { return false; }
+		void ShaderEditor_Open(int langID, int editorID, const char* data, int dataLen) override { }
+		void ShaderEditor_Render(int langID, int editorID) override { }
+		void ShaderEditor_Close(int langID, int editorID) override { }
+		const char* ShaderEditor_GetContent(int langID, int editorID, size_t* dataLength) override { return nullptr; }
+		bool ShaderEditor_IsChanged(int langID, int editorID) override { return false; }
+		void ShaderEditor_ResetChangeState(int langID, int editorID) override { }
+		bool ShaderEditor_CanUndo(int langID, int editorID) override { return false; }
+		bool ShaderEditor_CanRedo(int langID, int editorID) override { return false; }
+		void ShaderEditor_Undo(int langID, int editorID) override { }
+		void ShaderEditor_Redo(int langID, int editorID) override { }
+		void ShaderEditor_Cut(int langID, int editorID) override { }
+		void ShaderEditor_Paste(int langID, int editorID) override { }
+		void ShaderEditor_Copy(int langID, int editorID) override { }
+		void ShaderEditor_SelectAll(int langID, int editorID) override { }
+		bool ShaderEditor_HasStats(int langID, int editorID) override { return false; }
 
 		// code editor
-		virtual void CodeEditor_SaveItem(const char* src, int srcLen, const char* id) {}
-		virtual void CodeEditor_CloseItem(const char* id) {}
-		virtual bool LanguageDefinition_Exists(int id) { return true; }
-		virtual int LanguageDefinition_GetKeywordCount(int id)
-		{
-			return m_langDefKeywords.size();
+		void CodeEditor_SaveItem(const char* src, int srcLen, const char* id) override {}
+		void CodeEditor_CloseItem(const char* id) override {}
+		bool LanguageDefinition_Exists(int id) override { return true; }
+		int LanguageDefinition_GetKeywordCount(int id) override {
+			return (int) m_langDefKeywords.size();
 		}
-		virtual const char** LanguageDefinition_GetKeywords(int id)
-		{
+
+		const char** LanguageDefinition_GetKeywords(int id) override {
 			return m_langDefKeywords.data();
 		}
-		virtual int LanguageDefinition_GetTokenRegexCount(int id)
-		{
-			return m_langDefRegex.size();
+
+		int LanguageDefinition_GetTokenRegexCount(int id) override {
+			return (int) m_langDefRegex.size();
 		}
-		virtual const char* LanguageDefinition_GetTokenRegex(int index, ed::plugin::TextEditorPaletteIndex& palIndex, int id)
-		{
-			palIndex = m_langDefRegex[index].second;
-			return m_langDefRegex[index].first;
+
+		const char* LanguageDefinition_GetTokenRegex(int index, ed::plugin::TextEditorPaletteIndex& palIndex, int id) override {
+            palIndex = m_langDefRegex[index].second;
+            return m_langDefRegex[index].first;
+        }
+
+		int LanguageDefinition_GetIdentifierCount(int id) override {
+			return (int) m_langDefIdentifiers.size();
 		}
-		virtual int LanguageDefinition_GetIdentifierCount(int id)
-		{
-			return m_langDefIdentifiers.size();
-		}
-		virtual const char* LanguageDefinition_GetIdentifier(int index, int id)
+
+		const char* LanguageDefinition_GetIdentifier(int index, int id) override
 		{
 			return m_langDefIdentifiers[index].first;
 		}
-		virtual const char* LanguageDefinition_GetIdentifierDesc(int index, int id)
+		const char* LanguageDefinition_GetIdentifierDesc(int index, int id) override
 		{
 			return m_langDefIdentifiers[index].second;
 		}
-		virtual const char* LanguageDefinition_GetCommentStart(int id)
+		const char* LanguageDefinition_GetCommentStart(int id) override
 		{
 			return "/*";
 		}
-		virtual const char* LanguageDefinition_GetCommentEnd(int id)
+		const char* LanguageDefinition_GetCommentEnd(int id) override
 		{
 			return "*/";
 		}
-		virtual const char* LanguageDefinition_GetLineComment(int id)
+		const char* LanguageDefinition_GetLineComment(int id) override
 		{
 			return "//";
 		}
-		virtual bool LanguageDefinition_IsCaseSensitive(int id) { return true; }
-		virtual bool LanguageDefinition_GetAutoIndent(int id) { return true; }
-		virtual const char* LanguageDefinition_GetName(int id) { return "Rust"; }
-		virtual const char* LanguageDefinition_GetNameAbbreviation(int id) { return "RS"; }
+		bool LanguageDefinition_IsCaseSensitive(int id) override { return true; }
+		bool LanguageDefinition_GetAutoIndent(int id) override { return true; }
+		const char* LanguageDefinition_GetName(int id) override { return "Rust"; }
+		const char* LanguageDefinition_GetNameAbbreviation(int id) override { return "RS"; }
 
 		// autocomplete
-		virtual int Autocomplete_GetCount(ed::plugin::ShaderStage stage) { return 0; }
-		virtual const char* Autocomplete_GetDisplayString(ed::plugin::ShaderStage stage, int index) { return 0; }
-		virtual const char* Autocomplete_GetSearchString(ed::plugin::ShaderStage stage, int index) { return 0; }
-		virtual const char* Autocomplete_GetValue(ed::plugin::ShaderStage stage, int index) { return 0; }
+		int Autocomplete_GetCount(ed::plugin::ShaderStage stage) override { return 0; }
+		const char* Autocomplete_GetDisplayString(ed::plugin::ShaderStage stage, int index) override { return nullptr; }
+		const char* Autocomplete_GetSearchString(ed::plugin::ShaderStage stage, int index) override { return nullptr; }
+		const char* Autocomplete_GetValue(ed::plugin::ShaderStage stage, int index) override { return nullptr; }
 
 		// file change checks
-		virtual int ShaderFilePath_GetCount() { return 0; }
-		virtual const char* ShaderFilePath_Get(int index) { return 0; }
-		virtual bool ShaderFilePath_HasChanged() { return 0; }
-		virtual void ShaderFilePath_Update() {}
+		int ShaderFilePath_GetCount() override { return 0; }
+		const char* ShaderFilePath_Get(int index) override { return nullptr; }
+		bool ShaderFilePath_HasChanged() override { return false; }
+		void ShaderFilePath_Update() override {}
 
 		// misc
-		virtual bool HandleDropFile(const char* filename) { return 0; }
-		virtual void HandleRecompile(const char* itemName) {}
-		virtual void HandleRecompileFromSource(const char* itemName, int sid, const char* shaderCode, int shaderSize) {}
-		virtual void HandleShortcut(const char* name) {}
-		virtual void HandlePluginMessage(const char* sender, char* msg, int msgLen) {}
-		virtual void HandleApplicationEvent(ed::plugin::ApplicationEvent event, void* data1, void* data2) {}
-		virtual void HandleNotification(int id) {}
+		bool HandleDropFile(const char* filename) override { return false; }
+		void HandleRecompile(const char* itemName) override {}
+		void HandleRecompileFromSource(const char* itemName, int sid, const char* shaderCode, int shaderSize) override {}
+		void HandleShortcut(const char* name) override {}
+		void HandlePluginMessage(const char* sender, char* msg, int msgLen) override {}
+		void HandleApplicationEvent(ed::plugin::ApplicationEvent event, void* data1, void* data2) override {}
+		void HandleNotification(int id) override {}
 
 		// IPlugin2 stuff
-		virtual bool PipelineItem_SupportsImmediateMode(const char* type, void* data, ed::plugin::ShaderStage stage) { return false; }
-		virtual bool PipelineItem_HasCustomImmediateModeCompiler(const char* type, void* data, ed::plugin::ShaderStage stage) { return false; }
-		virtual bool PipelineItem_ImmediateModeCompile(const char* type, void* data, ed::plugin::ShaderStage stage, const char* expression) { return false; }
+		bool PipelineItem_SupportsImmediateMode(const char* type, void* data, ed::plugin::ShaderStage stage) override { return false; }
+		bool PipelineItem_HasCustomImmediateModeCompiler(const char* type, void* data, ed::plugin::ShaderStage stage) override { return false; }
+		bool PipelineItem_ImmediateModeCompile(const char* type, void* data, ed::plugin::ShaderStage stage, const char* expression) override { return false; }
 
-		virtual unsigned int ImmediateMode_GetSPIRVSize() { return 0; }
-		virtual unsigned int* ImmediateMode_GetSPIRV() { return 0; }
-		virtual unsigned int ImmediateMode_GetVariableCount() { return 0; }
-		virtual const char* ImmediateMode_GetVariableName(unsigned int index) { return 0; }
-		virtual int ImmediateMode_GetResultID() { return 0; }
+		unsigned int ImmediateMode_GetSPIRVSize() override { return 0; }
+		unsigned int* ImmediateMode_GetSPIRV() override { return nullptr; }
+		unsigned int ImmediateMode_GetVariableCount() override { return 0; }
+		const char* ImmediateMode_GetVariableName(unsigned int index) override { return nullptr; }
+		int ImmediateMode_GetResultID() override { return 0; }
 
 	private:
 		int m_hostVersion;
@@ -444,15 +444,15 @@ namespace rs
 
 			// regex
 			m_langDefRegex.clear();
-			m_langDefRegex.push_back(std::make_pair("[ \\t]*#\\!?\\[[^\\]]*\\]", ed::plugin::TextEditorPaletteIndex::Preprocessor));
-			m_langDefRegex.push_back(std::make_pair("L?\\\"(\\\\.|[^\\\"])*\\\"", ed::plugin::TextEditorPaletteIndex::String));
-			m_langDefRegex.push_back(std::make_pair("\\'\\\\?[^\\']\\'", ed::plugin::TextEditorPaletteIndex::CharLiteral));
-			m_langDefRegex.push_back(std::make_pair("[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)([eE][+-]?[0-9]+)?[fF]?", ed::plugin::TextEditorPaletteIndex::Number));
-			m_langDefRegex.push_back(std::make_pair("[+-]?[0-9]+[Uu]?[lL]?[lL]?", ed::plugin::TextEditorPaletteIndex::Number));
-			m_langDefRegex.push_back(std::make_pair("0[0-7]+[Uu]?[lL]?[lL]?", ed::plugin::TextEditorPaletteIndex::Number));
-			m_langDefRegex.push_back(std::make_pair("0[xX][0-9a-fA-F]+[uU]?[lL]?[lL]?", ed::plugin::TextEditorPaletteIndex::Number));
-			m_langDefRegex.push_back(std::make_pair("[a-zA-Z_][a-zA-Z0-9_]*", ed::plugin::TextEditorPaletteIndex::Identifier));
-			m_langDefRegex.push_back(std::make_pair("[\\[\\]\\{\\}\\!\\%\\^\\&\\*\\(\\)\\-\\+\\=\\~\\|\\<\\>\\?\\/\\;\\,\\.]", ed::plugin::TextEditorPaletteIndex::Punctuation));
+			m_langDefRegex.emplace_back(R"([ \t]*#\!?\[[^\]]*\])", ed::plugin::TextEditorPaletteIndex::Preprocessor);
+			m_langDefRegex.emplace_back(R"(L?\"(\\.|[^\"])*\")", ed::plugin::TextEditorPaletteIndex::String);
+			m_langDefRegex.emplace_back(R"(\'\\?[^\']\')", ed::plugin::TextEditorPaletteIndex::CharLiteral);
+			m_langDefRegex.emplace_back("[+-]?([0-9]+([.][0-9]*)?|[.][0-9]+)([eE][+-]?[0-9]+)?[fF]?", ed::plugin::TextEditorPaletteIndex::Number);
+			m_langDefRegex.emplace_back("[+-]?[0-9]+[Uu]?[lL]?[lL]?", ed::plugin::TextEditorPaletteIndex::Number);
+			m_langDefRegex.emplace_back("0[0-7]+[Uu]?[lL]?[lL]?", ed::plugin::TextEditorPaletteIndex::Number);
+			m_langDefRegex.emplace_back("0[xX][0-9a-fA-F]+[uU]?[lL]?[lL]?", ed::plugin::TextEditorPaletteIndex::Number);
+			m_langDefRegex.emplace_back("[a-zA-Z_][a-zA-Z0-9_]*", ed::plugin::TextEditorPaletteIndex::Identifier);
+			m_langDefRegex.emplace_back(R"([\[\]\{\}\!\%\^\&\*\(\)\-\+\=\~\|\<\>\?\/\;\,\.])", ed::plugin::TextEditorPaletteIndex::Punctuation);
 
 			// identifiers
 			m_langDefIdentifiers.clear();
@@ -473,7 +473,10 @@ namespace rs
 #endif
 
 		}
-		std::string m_exec(const char* cmd) {
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "ConstantParameter"
+		static std::string m_exec(const char* cmd) {
+#pragma clang diagnostic pop
 #if defined(_WIN32)
 			std::array<char, 128> buffer;
 			std::string result;
@@ -487,7 +490,7 @@ namespace rs
 			}
 			return result;
 #else
-			std::array<char, 128> buffer;
+			std::array<char, 128> buffer{};
 			std::string result;
 			std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
 			if (!pipe) {
@@ -495,7 +498,7 @@ namespace rs
 				return "";
 			}
 			while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-				result += buffer.data();
+				result.append(buffer.data());
 			}
 			return result;
 #endif
