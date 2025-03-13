@@ -321,7 +321,7 @@ namespace rs
 
 			return m_spv;
 		}
-        
+
 		const char* CustomLanguage_ProcessGeneratedGLSL(int langID, const char* srcPtr) override
 		{
 			return srcPtr;
